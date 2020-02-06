@@ -1,0 +1,7 @@
+{
+  "uid": "testForever",
+  "append": true,
+  "watch": true,
+  "script": "index.js",
+  "sourceDir": "C:/Users/sgian/Greenvulcano/node/node-jwt"
+}

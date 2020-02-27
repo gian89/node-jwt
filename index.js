@@ -9,7 +9,26 @@ const  router  =  express.Router();
 const db = require('./MODULES/DATABASE/database');
 const {verifyUser, jwt} = require('./MODULES/JWT_AUTH/jwt-auth');
 const {port} = require('./config');
+const mongoDb = require('./MODULES/MONGO_DB/mongoDb.js');
 
+/*
+mongoDb.main()
+    .then(value => {
+        console.log("Connessione riuscita: ")
+    })
+    .catch(reason => {
+        console.error('errore connessione:', reason);
+    });
+*/
+
+mongoDb.connect()
+    .then(db => {
+        db.close();
+        console.log("Connessione riuscita: ")
+    })
+    .catch(reason => {
+        console.error('errore connessione:', reason);
+    });
 
 router.use(bodyParser.urlencoded({ extended:  false }));
 router.use(bodyParser.json());

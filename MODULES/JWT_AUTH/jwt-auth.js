@@ -4,8 +4,8 @@ const {secretKey} = require('../../config');
 
 const verifyUser = (accesToken) => {
     try{
+        console.log("inizio verifica token");
         const payload = jwt.verify(accesToken, secretKey);
-        console.log(payload);
         return payload;
     } catch(error) {
         console.log('errore token');

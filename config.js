@@ -1,6 +1,8 @@
 const secretKey = "secretkey23456";
 
-const expireTime = 24  *  60  *  60;
+// const expireTime = 24  *  60  *  60;
+ const expireTime = 30;
+ const refreshExpireTime = 24 * 60 * 60 * 24;
 
 const  port  =  process.env.PORT  ||  3000;
 
@@ -12,6 +14,7 @@ const trackEntryPoint = 'http://portaledev-arre.greenvulcano.com/index.php/rest/
 module.exports = {
     secretKey,
     expireTime,
+    refreshExpireTime,
     port,
     at,
     trackEntryPoint

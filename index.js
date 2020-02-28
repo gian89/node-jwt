@@ -7,7 +7,7 @@ const  router  =  express.Router();
 
 //require di moduli Custom
 const db = require('./MODULES/DATABASE/database');
-const {verifyUser, jwt} = require('./MODULES/JWT_AUTH/jwt-auth');
+const {verifyUser, jwt, newAccesToken} = require('./MODULES/JWT_AUTH/jwt-auth');
 const {port} = require('./config');
 const mongoDb = require('./MODULES/MONGO_DB/mongoDb.js');
 
@@ -71,9 +71,23 @@ router.post('/testAccesToken', (req, res) => {
     console.log('inizio');
     const  accesToken  =  req.body.accesToken;
     const verifyAcces = verifyUser(accesToken);
+    console.log('verifyAcces:', verifyAcces);
     if (verifyAcces){
-        res.status(200).send({ "accesToken":  "valid", "role": verifyAcces.role});
+        res.status(200).send({ "_id":verifyAcces._id, "accesToken":  "valid", "role": verifyAcces.role, "email": verifyAcces.email});
     }else{
         res.status(401).send({ "accesToken":  "not valid"});
     }
+});
+
+
+router.post('/newAccesToken', (req, res) => {
+    console.log('inizio refresh token');
+    const  refreshToken  =  req.body.refreshToken;
+    newAccesToken(refreshToken)
+        .then(value => {
+            res.status(200).send({ "accesToken": value});
+        })
+        .catch(reason => {
+            res.status(401).send({ "accesToken":  "not valid"});
+        })
 });

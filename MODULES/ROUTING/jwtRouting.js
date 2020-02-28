@@ -10,7 +10,7 @@ require di moduli Custom
 */
 const db = require('../DATABASE/database');
 const {verifyUser, jwt} = require('../JWT_AUTH/jwt-auth');
-const {expireTime,secretKey} = require('../../config');
+const {expireTime,refreshExpireTime,secretKey} = require('../../config');
 const mongoDb = require('../MONGO_DB/mongoDb');
 
 /*
@@ -19,42 +19,6 @@ Al momento della registrazione la password viene salvata in modo criptato.
 Le funzioni sono implementata sia per un database MySql che per un Mongo.
 Al momento delle login agli utenti viene assegnato un token che servirà a verificare la propria identita nelle successive chiamate.
 */
-router.post('/register', (req, res) => {
-    const  email  =  req.body.email;
-    const  name  =  req.body.name;
-    const  password  =  bcrypt.hashSync(req.body.password);
-    const userData = [name, email, password];
-    db.createUser(userData)
-        .then(() => {
-            return  res.status(200).send("Utente creato correttamente! ");
-        }).catch((err) => {
-        console.log('createUser Error: ' + err.code);
-        if (err.code === 'SQLITE_CONSTRAINT'){
-            return  res.status(500).send("Email già esistente!");
-        }
-        return  res.status(500).send("Server db error!" + JSON.stringify(err) );
-    });
-});
-
-router.post('/login', (req, res) => {
-    const  email  =  req.body.email;
-    const  password  =  req.body.password;
-    db.findUserByEmail(email)
-        .then((user) => {
-            if (!user) {
-                return res.status(404).send('User not found! ');
-            }
-            const  result  =  bcrypt.compareSync(password, user.password);
-            if(!result) return  res.status(401).send('Password not valid!');
-            // const  expiresIn  =  24  *  60  *  60;
-            const  accessToken  =  jwt.sign({ id:  user.id, role: user.role }, secretKey, {
-                expiresIn:  expireTime
-            });
-            res.status(200).send({ "user":  user, "access_token":  accessToken, "expires_in":  expireTime});
-        }).catch((err) => {
-        return res.status(500).send('Server error! ' + err);
-    });
-});
 
 router.post('/registerMongo', async (req, res) => {
     let user = {
@@ -84,10 +48,13 @@ router.post('/loginMongo', (req, res) => {
             const  result  =  bcrypt.compareSync(password, user.password);
             if(!result) return  res.status(401).send('Password not valid!');
             // const  expiresIn  =  24  *  60  *  60;
-            const  accessToken  =  jwt.sign({ id:  user.id, role: user.role }, secretKey, {
+            const  accessToken  =  jwt.sign({ _id: user._id, role: user.role, email: user.email }, secretKey, {
                 expiresIn:  expireTime
             });
-            res.status(200).send({ "user":  user, "access_token":  accessToken, "expires_in":  expireTime});
+            const  refreshToken  =  jwt.sign({ _id: user._id, role: user.role, email: user.email }, secretKey, {
+                expiresIn:  refreshExpireTime
+            });
+            res.status(200).send({ "user":  user, "access_token":  accessToken, "expires_in":  expireTime, "refresh_token": refreshToken });
         }).catch((err) => {
         return res.status(500).send('Server error! ' + err);
     });
@@ -135,5 +102,41 @@ router.post('/updateUserPasswordMongo', async (req, res) => {
     });
 });
 
+router.post('/register', (req, res) => {
+    const  email  =  req.body.email;
+    const  name  =  req.body.name;
+    const  password  =  bcrypt.hashSync(req.body.password);
+    const userData = [name, email, password];
+    db.createUser(userData)
+        .then(() => {
+            return  res.status(200).send("Utente creato correttamente! ");
+        }).catch((err) => {
+        console.log('createUser Error: ' + err.code);
+        if (err.code === 'SQLITE_CONSTRAINT'){
+            return  res.status(500).send("Email già esistente!");
+        }
+        return  res.status(500).send("Server db error!" + JSON.stringify(err) );
+    });
+});
+
+router.post('/login', (req, res) => {
+    const  email  =  req.body.email;
+    const  password  =  req.body.password;
+    db.findUserByEmail(email)
+        .then((user) => {
+            if (!user) {
+                return res.status(404).send('User not found! ');
+            }
+            const  result  =  bcrypt.compareSync(password, user.password);
+            if(!result) return  res.status(401).send('Password not valid!');
+            // const  expiresIn  =  24  *  60  *  60;
+            const  accessToken  =  jwt.sign({ id:  user.id, role: user.role }, secretKey, {
+                expiresIn:  expireTime
+            });
+            res.status(200).send({ "user":  user, "access_token":  accessToken, "expires_in":  expireTime});
+        }).catch((err) => {
+        return res.status(500).send('Server error! ' + err);
+    });
+});
 
 module.exports = router;

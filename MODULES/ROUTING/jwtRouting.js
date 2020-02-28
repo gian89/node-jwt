@@ -9,7 +9,7 @@ const  bcrypt  =  require('bcryptjs');
 require di moduli Custom
 */
 const db = require('../DATABASE/database');
-const {verifyUser, jwt} = require('../JWT_AUTH/jwt-auth');
+const {verifyUser, jwt ,newAccesToken} = require('../JWT_AUTH/jwt-auth');
 const {expireTime,refreshExpireTime,secretKey} = require('../../config');
 const mongoDb = require('../MONGO_DB/mongoDb');
 
@@ -101,6 +101,40 @@ router.post('/updateUserPasswordMongo', async (req, res) => {
         return res.status(500).send('Server error! ' + err);
     });
 });
+
+router.post('/testAccesToken', (req, res) => {
+    console.log('inizio');
+    const  accesToken  =  req.body.accesToken;
+    verifyUser(accesToken)
+        .then(verifyAcces => {
+            res.status(200).send({
+                "_id": verifyAcces._id,
+                "accesToken": "valid",
+                "role": verifyAcces.role,
+                "email": verifyAcces.email
+            });
+        })
+        .catch(reason => {
+            console.log(reason);
+            res.status(reason.number).send({"accesToken": reason.message});
+        });
+});
+
+router.post('/newAccesToken', (req, res) => {
+    console.log('inizio refresh token');
+    const  refreshToken  =  req.body.refreshToken;
+    newAccesToken(refreshToken)
+        .then(value => {
+            res.status(200).send({ "accesToken": value});
+        })
+        .catch(reason => {
+            res.status(401).send({ "accesToken":  "not valid"});
+        })
+});
+
+/*
+Funzioni di autenticazione con db basato su mySql
+*/
 
 router.post('/register', (req, res) => {
     const  email  =  req.body.email;

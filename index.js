@@ -11,16 +11,10 @@ const {verifyUser, jwt} = require('./MODULES/JWT_AUTH/jwt-auth');
 const {port} = require('./config');
 const mongoDb = require('./MODULES/MONGO_DB/mongoDb.js');
 
-/*
-mongoDb.main()
-    .then(value => {
-        console.log("Connessione riuscita: ")
-    })
-    .catch(reason => {
-        console.error('errore connessione:', reason);
-    });
-*/
 
+/*
+mi connetto al database Mongo in modo da controllare se ci sono problemi
+*/
 mongoDb.connect()
     .then(db => {
         db.close();
@@ -30,22 +24,30 @@ mongoDb.connect()
         console.error('errore connessione:', reason);
     });
 
+
+
 router.use(bodyParser.urlencoded({ extended:  false }));
 router.use(bodyParser.json());
 
 app.use(router);
+
+
+/*
+Il server è in ascolto sulla porta definita nella variabile "port"
+*/
 app.listen(port, () => {
     console.log('Server listening at http://localhost:'  +  port);
 });
 
 /*
-In questo modo una parte del routing viene  gestita da un modulo custom e non nell'index'
+In questo modo una parte del routing viene gestita da un modulo custom e non nell'index'
 */
-
 app.use(require('./MODULES/ROUTING/trackArrePortalRouting'));
 app.use(require('./MODULES/ROUTING/jwtRouting'));
 
-
+/*
+Gestione del routing fatta direttamente nell'index
+*/
 router.get('/', (req, res) => {
     res.status(200).send('This is an authentication server');
 });

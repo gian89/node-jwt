@@ -1,13 +1,19 @@
 const  sqlite3  =  require('sqlite3').verbose();
 
+/*
+Funzione che si occupa dell'apertura del database
+*/
 const database = new sqlite3.Database("./my.db",(err, res)=>{
     if(err){
         console.log('Errore Apertura DB')
     }else {
-        console.log('Inizializzazione DB ')
+        console.log('Inizializzazione DB')
     }
 });
 
+/*
+Questa funzione crea la tabella in caso non sia stata ancora creata
+*/
 const createUsersTable = () => {
     const sqlQuery = `
         CREATE TABLE IF NOT EXISTS users (
@@ -73,11 +79,17 @@ const showUsers = () => {
     });
 };
 
+
+/*
+Quando questo modulo verrà importato nell'index, automaticamente  la funzione verrà eseguita e
+'inizializzerò il database
+*/
 try {
     createUsersTable()
 }catch (e) {
     console.log('errore DB: ' + e)
 }
+
 
 module.exports = {
     createUsersTable,

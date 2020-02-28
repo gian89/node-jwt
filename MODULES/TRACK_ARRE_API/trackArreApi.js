@@ -9,6 +9,9 @@ const getCustomer = () => {
     })
 };
 
+/*
+Funziona generica che si occupa di effettuare le chiamate verso il server di TrackArre
+*/
 const trackCaller = async (endPoint, method, body = null) => {
     return new Promise(async (resolve, reject) => {
         try {

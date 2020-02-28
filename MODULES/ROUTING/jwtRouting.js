@@ -1,15 +1,24 @@
 const router = require('./configRouting');
+/*
+Questa modulo serve per criptare e decriptare le password
+*/
 const  bcrypt  =  require('bcryptjs');
 
 
-//require di moduli Custom
+/*
+require di moduli Custom
+*/
 const db = require('../DATABASE/database');
 const {verifyUser, jwt} = require('../JWT_AUTH/jwt-auth');
 const {expireTime,secretKey} = require('../../config');
-
 const mongoDb = require('../MONGO_DB/mongoDb');
 
-
+/*
+Queste funzioni si occupano di gestire la registrazione e la login degli utenti.
+Al momento della registrazione la password viene salvata in modo criptato.
+Le funzioni sono implementata sia per un database MySql che per un Mongo.
+Al momento delle login agli utenti viene assegnato un token che servirà a verificare la propria identita nelle successive chiamate.
+*/
 router.post('/register', (req, res) => {
     const  email  =  req.body.email;
     const  name  =  req.body.name;

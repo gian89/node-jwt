@@ -1,12 +1,15 @@
 const MongoClient = require('mongodb').MongoClient;
 const url = "mongodb://localhost:27017/";
 
+/*
+Questa funzione restituisce una Promise che sarà risolta se la connessione al Database è stata effettuata correttamente
+*/
 function connect() {
     return new Promise((resolve, reject) =>{
         MongoClient.connect(url, function(err, db) {
             if (err) reject(err);
-            db.db("testJwt").createCollection("jwtUsers", function (err, res) {
-                if (err) reject(err);
+            db.db("testJwt").createCollection("jwtUsers", function (e, res) {
+                if (e) reject(e);
                 console.log("Collection created!");
                 resolve(db);
             });
@@ -40,7 +43,7 @@ function findUsersByEmail(email){
         connect()
             .then(db => {
                 let test = "1";
-                 let query = { email: { $regex: test } };
+                let query = { email: { $regex: test } };
                 db.db("testJwt").collection("jwtUsers").find(query).toArray(function(err, result) {
                     if (err) {reject(err)}
                     console.log("result: ", result);

@@ -12,6 +12,10 @@ const {port} = require('./config');
 const mongoDb = require('./MODULES/MONGO_DB/mongoDb.js');
 
 
+const cors = require('cors');
+
+app.use(cors());
+
 /*
 mi connetto al database Mongo in modo da controllare se ci sono problemi
 */

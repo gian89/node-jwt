@@ -6,7 +6,7 @@ Questa funzione restituisce una Promise che sarà risolta se la connessione al D
 */
 function connect() {
     return new Promise((resolve, reject) =>{
-        MongoClient.connect(url, function(err, db) {
+        MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true},function(err, db) {
             if (err) reject(err);
             db.db("testJwt").createCollection("jwtUsers", function (e, res) {
                 if (e) reject(e);
@@ -84,7 +84,6 @@ function updateUserPassword(email, password) {
             })
     })
 }
-
 
 
 module.exports = {

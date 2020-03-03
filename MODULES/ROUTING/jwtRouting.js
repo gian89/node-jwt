@@ -4,7 +4,6 @@ Questa modulo serve per criptare e decriptare le password
 */
 const  bcrypt  =  require('bcryptjs');
 
-
 /*
 require di moduli Custom
 */
@@ -103,33 +102,49 @@ router.post('/updateUserPasswordMongo', async (req, res) => {
 });
 
 router.post('/testAccesToken', (req, res) => {
+    const bearerHeader = req.headers['authorization'];
     console.log('inizio');
-    const  accesToken  =  req.body.accesToken;
-    verifyUser(accesToken)
-        .then(verifyAcces => {
-            res.status(200).send({
-                "_id": verifyAcces._id,
-                "accesToken": "valid",
-                "role": verifyAcces.role,
-                "email": verifyAcces.email
+    if (bearerHeader) {
+        const bearer = bearerHeader.split(' ');
+        const bearerToken = bearer[1];
+        console.log("token:",bearerToken);
+        verifyUser(bearerToken)
+            .then(verifyAcces => {
+                res.status(200).send({
+                    "_id": verifyAcces._id,
+                    "accesToken": "valid",
+                    "role": verifyAcces.role,
+                    "email": verifyAcces.email
+                });
+            })
+            .catch(reason => {
+                console.log(reason);
+                res.status(reason.number).send({"accesToken": reason.message});
             });
-        })
-        .catch(reason => {
-            console.log(reason);
-            res.status(reason.number).send({"accesToken": reason.message});
-        });
+    }else {
+        res.status(401).send({"accesToken":"Unauthorized Token"});
+    }
+
+    // const  accesToken  =  req.body.accesToken;
+
 });
 
 router.post('/newAccesToken', (req, res) => {
-    console.log('inizio refresh token');
-    const  refreshToken  =  req.body.refreshToken;
-    newAccesToken(refreshToken)
-        .then(value => {
-            res.status(200).send({ "accesToken": value});
-        })
-        .catch(reason => {
-            res.status(401).send({ "accesToken":  "not valid"});
-        })
+    const bearerHeader = req.headers['authorization'];
+    if (bearerHeader) {
+        const bearer = bearerHeader.split(' ');
+        const bearerRefreshToken = bearer[1];
+        console.log("token:",bearerRefreshToken);
+        newAccesToken(bearerRefreshToken)
+            .then(value => {
+                res.status(200).send({ "accesToken": value});
+            })
+            .catch(reason => {
+                res.status(401).send({ "accesToken":  "not valid"});
+            })
+    }else {
+        res.status(401).send({"accesToken":"Unauthorized Token"});
+    }
 });
 
 /*
